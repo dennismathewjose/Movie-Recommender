@@ -36,4 +36,12 @@ env/
 data/
 *.pkl
 *.csv
-*.log 
+*.log
+code_documentation.txt
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local 
