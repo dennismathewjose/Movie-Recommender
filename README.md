@@ -4,10 +4,10 @@ This project implements a plot-based movie recommendation system using Natural L
 
 ## Features
 
-- Search movies by theme, plot, or movie name
+- Search movies by theme, plot, title, director or genre
 - Get exact matches and similar movies based on plot content
 - View similarity scores for recommended movies
-- Display top 10 similar movies with their genres
+- Display top 10 similar movies with their genres along with user-rating
 - Process and analyze a large dataset of 1000+ movies
 
 ## Project Structure
