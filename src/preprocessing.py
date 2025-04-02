@@ -1,113 +1,113 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MultiLabelBinarizer
 import re
-import ast
-from sentence_transformers import SentenceTransformer
-import torch
 import pickle
+import json
+from sentence_transformers import SentenceTransformer
+import nltk
+from nltk.corpus import stopwords
+from sklearn.preprocessing import MultiLabelBinarizer
 
-class MovieDataPreprocessor:
-    def __init__(self, model_name='all-MiniLM-L6-v2'):
-        """
-        Initialize the preprocessor with a BERT model
-        Args:
-            model_name (str): Name of the SBERT model to use
-        """
-        self.model = SentenceTransformer(model_name)
-        self.mlb = MultiLabelBinarizer()
-
+class TextCleaner:
+    def __init__(self):
+        """Initialize the text cleaner with NLTK stopwords."""
+        try:
+            nltk.data.find('corpora/stopwords')
+        except LookupError:
+            nltk.download('stopwords')
+        self.stop_words = set(stopwords.words('english'))
+    
     def clean_text(self, text):
-        """
-        Clean and normalize text data
-        Args:
-            text (str): Input text
-        Returns:
-            str: Cleaned text
-        """
+        """Clean and standardize text."""
         if not isinstance(text, str):
             return ""
+            
+        # Convert to lowercase
+        text = text.lower()
         
-        # Remove HTML tags
-        text = re.sub('<[^<]+?>', '', text)
+        # Remove special characters and numbers
+        text = re.sub(r'[^a-zA-Z\s]', '', text)
         
-        # Remove special characters and digits
-        text = re.sub(r'[^\w\s]', ' ', text)
+        # Remove extra whitespace
+        text = ' '.join(text.split())
         
-        # Convert to lowercase and remove extra whitespace
-        text = text.lower().strip()
-        text = re.sub('\s+', ' ', text)
+        # Remove stopwords
+        words = text.split()
+        words = [word for word in words if word not in self.stop_words]
         
-        return text
+        return ' '.join(words)
 
-    def process_genres(self, genres):
-        """
-        Process genre strings into a list
-        Args:
-            genres (str): String representation of genres list
-        Returns:
-            list: List of genres
-        """
-        if isinstance(genres, str):
-            try:
-                return ast.literal_eval(genres)
-            except:
-                return []
-        return genres if isinstance(genres, list) else []
-
-    def generate_embeddings(self, texts):
-        """
-        Generate BERT embeddings for a list of texts
-        Args:
-            texts (list): List of text strings
-        Returns:
-            numpy.ndarray: Array of embeddings
-        """
-        return self.model.encode(texts, show_progress_bar=True)
-
-    def preprocess_data(self, input_path, output_path):
-        """
-        Preprocess the movie data and save the results
-        Args:
-            input_path (str): Path to input CSV file
-            output_path (str): Path to save processed data
-        """
-        # Load data
-        df = pd.read_csv(input_path)
+def preprocess_data():
+    """Preprocess the collected movie data."""
+    try:
+        print("\nLoading movie data...")
+        with open('data/movies.json', 'r', encoding='utf-8') as f:
+            movies_data = json.load(f)
         
-        # Clean plot summaries
-        df['cleaned_overview'] = df['overview'].apply(self.clean_text)
+        print("Creating DataFrame...")
+        # Convert to DataFrame
+        movies_df = pd.DataFrame(movies_data)
         
-        # Process genres
-        df['genres'] = df['genres'].apply(self.process_genres)
+        # Initialize text cleaner
+        cleaner = TextCleaner()
         
-        # Generate genre encodings
-        genre_encodings = self.mlb.fit_transform(df['genres'])
-        genre_features = pd.DataFrame(
-            genre_encodings,
-            columns=self.mlb.classes_
+        # Clean overview text (but keep original for display)
+        print("Cleaning text data...")
+        movies_df['clean_overview'] = movies_df['overview'].apply(
+            lambda x: cleaner.clean_text(x) if isinstance(x, str) else ""
         )
         
+        # Initialize SentenceTransformer model
+        print("Loading NLP model...")
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        
         # Generate plot embeddings
-        plot_embeddings = self.generate_embeddings(df['cleaned_overview'].tolist())
+        print("Generating plot embeddings...")
+        plot_embeddings = model.encode(
+            movies_df['clean_overview'].tolist(),
+            show_progress_bar=True
+        )
+        
+        # Prepare genre features
+        print("Processing genres...")
+        # Ensure genres is a list
+        movies_df['genres'] = movies_df['genres'].apply(
+            lambda x: x if isinstance(x, list) else []
+        )
+        
+        # Create genre one-hot encoding
+        mlb = MultiLabelBinarizer()
+        genre_features = mlb.fit_transform(movies_df['genres'])
+        
+        # Filter out invalid entries
+        print("Filtering data...")
+        valid_mask = (
+            movies_df['overview'].notna() & 
+            movies_df['title'].notna() & 
+            (movies_df['overview'].str.len() > 0)
+        )
+        movies_df = movies_df[valid_mask].reset_index(drop=True)
+        plot_embeddings = plot_embeddings[valid_mask]
+        genre_features = genre_features[valid_mask]
         
         # Save processed data
+        print("\nSaving processed data...")
         processed_data = {
-            'movies_df': df,
-            'genre_features': genre_features,
+            'movies_df': movies_df,
             'plot_embeddings': plot_embeddings,
-            'mlb': self.mlb,
-            'model': self.model
+            'genre_features': genre_features,
+            'mlb': mlb,
+            'model': model
         }
         
-        with open(output_path, 'wb') as f:
+        with open('data/processed_data.pkl', 'wb') as f:
             pickle.dump(processed_data, f)
         
-        print(f"Processed data saved to {output_path}")
+        print("Data preprocessing completed successfully!")
+        
+    except Exception as e:
+        print(f"Error preprocessing data: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    preprocessor = MovieDataPreprocessor()
-    preprocessor.preprocess_data(
-        input_path='../data/movies.csv',
-        output_path='../data/processed_data.pkl'
-    ) 
+    preprocess_data() 

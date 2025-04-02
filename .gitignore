@@ -37,6 +37,7 @@ data/
 *.pkl
 *.csv
 *.log
+*.json
 code_documentation.txt
 
 # Jupyter Notebook
