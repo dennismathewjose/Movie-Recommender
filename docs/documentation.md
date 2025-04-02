@@ -107,7 +107,7 @@ This document provides comprehensive documentation for the plot-based movie reco
 ### Metrics
 1. **Relevance Metrics**
    - Mean Reciprocal Rank (MRR)
-   - Normalized Discounted Cumulative Gain (NDCG)
+   - Recall@K
    - Precision@K
 
 2. **Performance Metrics**
@@ -121,31 +121,4 @@ This document provides comprehensive documentation for the plot-based movie reco
 3. Metric computation
 4. Performance analysis
 
-## Results
 
-### Model Performance
-- Average similarity score: [X]
-- Response time: [Y] seconds
-- Memory usage: [Z] GB
-
-### Recommendation Quality
-- Precision@10: [X]%
-- NDCG: [Y]
-- User satisfaction rating: [Z]%
-
-### Areas for Improvement
-1. Query processing optimization
-2. Enhanced genre weighting
-3. Incorporation of user feedback
-4. Additional metadata utilization
-
-## Appendix
-
-### API Documentation
-Detailed API documentation including endpoints, request/response formats, and usage examples.
-
-### Configuration Guide
-System configuration parameters and their impact on performance and results.
-
-### Troubleshooting Guide
-Common issues and their solutions, error handling procedures. 
