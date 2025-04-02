@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ## Usage
 
 1. Data Preparation:
-   - The system uses movie data from [dataset source]
+   - The system uses movie data from TMDB API
    - Run data preprocessing scripts in the notebooks directory
    - Processed data will be saved in the data directory
 
