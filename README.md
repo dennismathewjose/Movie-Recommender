@@ -67,7 +67,6 @@ Detailed documentation is available in the `docs` directory, covering:
 - Data collection and preprocessing methodology
 - Model architecture and training process
 - Evaluation metrics and results
-- API documentation (if applicable)
 
 ## Contributing
 
