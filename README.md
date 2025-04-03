@@ -4,10 +4,10 @@ This project implements a plot-based movie recommendation system using Natural L
 
 ## Features
 
-- Search movies by theme, plot, or movie name
+- Search movies by theme, plot, title, director or genre
 - Get exact matches and similar movies based on plot content
 - View similarity scores for recommended movies
-- Display top 10 similar movies with their genres
+- Display top 10 similar movies with their genres along with user-rating
 - Process and analyze a large dataset of 1000+ movies
 
 ## Project Structure
@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ## Usage
 
 1. Data Preparation:
-   - The system uses movie data from [dataset source]
+   - The system uses movie data from TMDB API
    - Run data preprocessing scripts in the notebooks directory
    - Processed data will be saved in the data directory
 
@@ -67,7 +67,6 @@ Detailed documentation is available in the `docs` directory, covering:
 - Data collection and preprocessing methodology
 - Model architecture and training process
 - Evaluation metrics and results
-- API documentation (if applicable)
 
 ## Contributing
 
@@ -77,6 +76,3 @@ Detailed documentation is available in the `docs` directory, covering:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details. 
